@@ -74,6 +74,13 @@ ui_typenames = {
     "Other" : 'Other',
 }
 
+# copy proxy_config.py.template to proxy_config.py to add proxy config
+try:
+    from .proxy_config import _PROXIES
+    proxies = _PROXIES
+except ImportError:
+    proxies = None
+
 #information tab 
 civitai_information_tab = 0
 usergal_information_tab = 1

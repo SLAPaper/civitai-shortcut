@@ -164,7 +164,7 @@ def create_models_information(files, mfolder, vs_folder, register_shortcut, prog
                             if img_dict["width"]:
                                 img_url =  util.change_width_from_image_url(img_url, img_dict["width"])
                         # get image
-                        with requests.get(img_url, stream=True, verify=False) as img_r:
+                        with requests.get(img_url, stream=True, verify=False, proxies=setting.proxies) as img_r:
                             if not img_r.ok:
                                 util.printD("Get error code: " + str(img_r.status_code))
                                 return

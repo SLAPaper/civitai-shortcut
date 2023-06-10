@@ -125,7 +125,7 @@ def download_preview_image(filepath, version_info):
                     if img_dict["width"]:
                         img_url =  util.change_width_from_image_url(img_url, img_dict["width"])
                 # get image
-                with requests.get(img_url, stream=True, verify=False) as img_r:
+                with requests.get(img_url, stream=True, verify=False, proxies=setting.proxies) as img_r:
                     if not img_r.ok:
                         util.printD("Get error code: " + str(img_r.status_code))
                         return False
@@ -163,7 +163,7 @@ def download_image_file(model_name, image_urls):
             elif result == "url":
                 try:
                     # get image
-                    with requests.get(img_url, stream=True, verify=False) as img_r:
+                    with requests.get(img_url, stream=True, verify=False, proxies=setting.proxies) as img_r:
                         if not img_r.ok:
                             util.printD("Get error code: " + str(img_r.status_code) + ": proceed to the next file")
                         else:
@@ -209,7 +209,7 @@ def download_file(url, file_name):
             while True:
                 try:
                     # Send a GET request to the URL and save the response to the local file
-                    response = requests.get(url, headers=headers, stream=True, verify=False)
+                    response = requests.get(url, headers=headers, stream=True, verify=False, proxies=setting.proxies)
 
                     # Get the total size of the file
                     total_size = int(response.headers.get("Content-Length", 0))
