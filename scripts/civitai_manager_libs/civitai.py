@@ -33,7 +33,7 @@ def Url_ImagePage():
 def request_models(api_url=None):
     try:
         # Make a GET request to the API
-        with requests.get(api_url) as response:
+        with requests.get(api_url, verify=False) as response:
             # Check the status code of the response
             if response.status_code != 200:
                 util.printD("Request failed with status code: {}".format(response.status_code))
@@ -49,7 +49,7 @@ def get_model_info(id:str) -> dict:
     
     content = None
     try:            
-        with requests.get(Url_ModelId()+str(id)) as response:
+        with requests.get(Url_ModelId()+str(id), verify=False) as response:
             content = response.json()
 
         if 'id' not in content.keys():
@@ -79,7 +79,7 @@ def get_version_info_by_hash(hash) -> dict:
     content = None
     
     try:
-        with requests.get(f"{Url_Hash()}{hash}") as response:
+        with requests.get(f"{Url_Hash()}{hash}", verify=False) as response:
             content = response.json()
             
         if 'id' not in content.keys():
@@ -97,7 +97,7 @@ def get_version_info_by_version_id(version_id:str) -> dict:
     content = None
     
     try:
-        with requests.get(Url_VersionId()+str(version_id)) as response:
+        with requests.get(Url_VersionId()+str(version_id), verify=False) as response:
             content = response.json()
 
         if 'id' not in content.keys():

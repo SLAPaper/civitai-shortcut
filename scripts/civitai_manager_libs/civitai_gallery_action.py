@@ -406,7 +406,7 @@ def download_images(dn_image_list:list):
             gallery_img_file = setting.get_image_url_to_gallery_file(img_url)              
             # util.printD(gallery_img_file)
             if not os.path.isfile(gallery_img_file):                
-                with requests.get(img_url,stream=True) as img_r:
+                with requests.get(img_url,stream=True, verify=False) as img_r:
                     if not img_r.ok:
                         continue
 
@@ -527,7 +527,7 @@ def gallery_loading(images_url, progress):
                 description_img = img_url
             elif result == "url":                   
                 try:
-                    with requests.get(img_url,stream=True) as img_r:
+                    with requests.get(img_url,stream=True, verify=False) as img_r:
                         if not img_r.ok:                        
                             util.printD("Get error code: " + str(img_r.status_code) + ": proceed to the next file")                            
                             description_img = setting.no_card_preview_image
@@ -581,7 +581,7 @@ def download_user_gallery_images(model_id, image_urls):
             elif result == "url":                                
                 try:
                     # get image
-                    with requests.get(img_url, stream=True) as img_r:
+                    with requests.get(img_url, stream=True, verify=False) as img_r:
                         if not img_r.ok:
                             util.printD("Get error code: " + str(img_r.status_code) + ": proceed to the next file")
                         else:
