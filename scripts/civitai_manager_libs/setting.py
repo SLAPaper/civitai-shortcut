@@ -200,6 +200,9 @@ def load_data():
 
     if shared.cmd_opts.lora_dir:
         model_folders['LORA'] = shared.cmd_opts.lora_dir     
+
+    if shared.cmd_opts.vae_dir:
+        model_folders['VAE'] = shared.cmd_opts.vae_dir
                 
     environment = load()
     if environment:
