@@ -67,6 +67,13 @@ Four folders and five JSON files will be created, each serving the following rol
 * CivitaiShortCutBackupUrl.json : JSON file for backing up the URL during shortcut registration.
 
 # Change Log
+v 1.5.7
+* The functionality to filter using the base model provided by Civitai has been added.
+* I changed the classification categories to be selected from a dropdown list instead of searching in the search section. The selected classification categories will work as an 'AND' operation, meaning they will function as an intersection. This way, we can manage shortcuts that are classified under multiple categories in a more detailed manner
+
+v 1.5.6
+* Change the "user gallery paging" method to cursor-based paging as recommended by Civitai.
+
 v 1.5.5
 
 * When downloading a file, if there is no primary file in the download list, it will be modified to not generate version info and preview images. Only the corresponding file will be downloaded. 
