@@ -9,7 +9,6 @@ from . import setting
 from modules import scripts, script_callbacks, shared    
             
 def on_setting_ui():
-            
     with gr.Column(): 
         with gr.Row():
             with gr.Accordion("Option", open=False):    
@@ -23,14 +22,15 @@ def on_setting_ui():
                 with gr.Row():
                     scbrowser_screen_split_ratio = gr.Slider(minimum=0, maximum=setting.shortcut_browser_screen_split_ratio_max, value=setting.shortcut_browser_screen_split_ratio, step=1, info="You can specify the size ratio between the shortcut browser and the information screen.", label='Shortcut Browser screen ratio', interactive=True)              
                 with gr.Row():                                                
-                    info_gallery_height = gr.Dropdown(choices=["auto","fit"], value=setting.information_gallery_height, allow_custom_value=True, interactive=True, info="You can also specify a specific size other than 'auto' or 'fit'" , label="Information Gallery Height")                    
+                    info_gallery_height = gr.Dropdown(choices=["auto"], value=setting.information_gallery_height, allow_custom_value=True, interactive=True, info="You can also specify a specific size other than 'auto'" , label="Information Gallery Height")                    
                     gallery_thumbnail_image_style = gr.Dropdown(choices=["scale-down","cover","contain","fill","none"], value=setting.gallery_thumbnail_image_style, interactive=True, info="This specifies the shape of the displayed thumbnail." , label="Gallery Thumbnail Image Style")
-                                        
+                    shortcut_browser_search_up = gr.Dropdown(choices=["Up","Down"], value="Up" if setting.shortcut_browser_search_up else "Down", interactive=True, label="Set the position of the search bar in the shortcut browser.", info="If you select 'Up', the search bar will be placed above the thumbnail pane.")
+                    
         with gr.Row():
             with gr.Accordion("Shortcut Browser and Information Images", open=False):    
                 with gr.Row():
                     shortcut_column = gr.Slider(minimum=1, maximum=12, value=setting.shortcut_column, step=1, label='Shortcut Browser Column Count', interactive=True)
-                    shortcut_count_per_page = gr.Slider(minimum=0, maximum=100, value=setting.shortcut_count_per_page, step=1, label='Shortcut Browser Thumbnail Count per Page : setting it to 0 means displaying the entire list without a page.', interactive=True)
+                    shortcut_rows_per_page = gr.Slider(minimum=0, maximum=10, value=setting.shortcut_rows_per_page, step=1, label='Shortcut Browser Thumbnail Rows per Page : setting it to 0 means displaying the entire list without a page.', interactive=True)
                 with gr.Row():                    
                     gallery_column = gr.Slider(minimum=1, maximum=24, value=setting.gallery_column, step=1, label='Model Information Column Count', interactive=True)
                     classification_gallery_column = gr.Slider(minimum=1, maximum=24, value=setting.classification_gallery_column, step=1, label='Classification Model Column Count', interactive=True)
@@ -72,13 +72,14 @@ def on_setting_ui():
             scbrowser_screen_split_ratio,
             info_gallery_height,
             shortcut_column,
-            shortcut_count_per_page,
+            shortcut_rows_per_page,
             gallery_column,
             classification_gallery_column,
             usergallery_images_column,
             usergallery_images_page_limit,            
             shortcut_max_download_image_per_version,
             gallery_thumbnail_image_style,
+            shortcut_browser_search_up,
             extension_locon_folder,
             extension_wildcards_folder,
             extension_controlnet_folder,
@@ -86,7 +87,7 @@ def on_setting_ui():
             extension_poses_folder,
             extension_other_folder,
             download_images_folder,
-            classification_preview_mode_disable 
+            classification_preview_mode_disable             
         ],
         show_progress=False
     )
@@ -113,13 +114,14 @@ def on_setting_ui():
             scbrowser_screen_split_ratio,
             info_gallery_height,
             shortcut_column,
-            shortcut_count_per_page,
+            shortcut_rows_per_page,
             gallery_column,
             classification_gallery_column,
             usergallery_images_column,
             usergallery_images_page_limit,            
             shortcut_max_download_image_per_version,
             gallery_thumbnail_image_style,
+            shortcut_browser_search_up,
             extension_locon_folder,
             extension_wildcards_folder,
             extension_controlnet_folder,
@@ -136,36 +138,41 @@ def on_setting_ui():
 
 def on_save_btn_click(shortcut_update_when_start,
                       scbrowser_screen_split_ratio, info_gallery_height, 
-                      shortcut_column, shortcut_count_per_page,
+                      shortcut_column, shortcut_rows_per_page,
                       gallery_column, classification_gallery_column, usergallery_images_column, usergallery_images_page_limit,
                       shortcut_max_download_image_per_version,
                       gallery_thumbnail_image_style,
+                      shortcut_browser_search_up,
                       locon,wildcards,controlnet,aestheticgradient,poses,other,download_images_folder,
                       classification_preview_mode_disable
                       ):    
     
     save_setting(shortcut_update_when_start,
                       scbrowser_screen_split_ratio, info_gallery_height, 
-                      shortcut_column, shortcut_count_per_page,
+                      shortcut_column, shortcut_rows_per_page,
                       gallery_column, classification_gallery_column, usergallery_images_column, usergallery_images_page_limit,
                       shortcut_max_download_image_per_version,
                       gallery_thumbnail_image_style,
+                      shortcut_browser_search_up,
                       locon,wildcards,controlnet,aestheticgradient,poses,other,download_images_folder,
                       classification_preview_mode_disable
                       )    
 
 def save_setting(shortcut_update_when_start,
                       scbrowser_screen_split_ratio, info_gallery_height, 
-                      shortcut_column, shortcut_count_per_page,
+                      shortcut_column, shortcut_rows_per_page,
                       gallery_column, classification_gallery_column, usergallery_images_column, usergallery_images_page_limit,
                       shortcut_max_download_image_per_version,
                       gallery_thumbnail_image_style,
+                      shortcut_browser_search_up,
                       locon,wildcards,controlnet,aestheticgradient,poses,other,download_images_folder,
                       classification_preview_mode_disable
                       ):    
     
-    environment = dict()    
-    
+    environment = setting.load()
+    if not environment:
+         environment = dict()        
+         
     application_allow = dict()    
     application_allow['shortcut_update_when_start'] = shortcut_update_when_start
     application_allow['shortcut_max_download_image_per_version'] = shortcut_max_download_image_per_version
@@ -175,11 +182,12 @@ def save_setting(shortcut_update_when_start,
     screen_style['shortcut_browser_screen_split_ratio'] = scbrowser_screen_split_ratio
     screen_style['information_gallery_height'] = info_gallery_height
     screen_style['gallery_thumbnail_image_style'] = gallery_thumbnail_image_style
+    screen_style['shortcut_browser_search_up'] = True if shortcut_browser_search_up == "Up" else False
     environment['screen_style'] = screen_style
     
     image_style = dict()
     image_style['shortcut_column'] = shortcut_column
-    image_style['shortcut_count_per_page'] = shortcut_count_per_page
+    image_style['shortcut_rows_per_page'] = shortcut_rows_per_page
 
     image_style['gallery_column'] = gallery_column
     image_style['classification_gallery_column'] = classification_gallery_column
@@ -249,13 +257,14 @@ def on_refresh_setting_change():
             setting.shortcut_browser_screen_split_ratio,\
             setting.information_gallery_height,\
             setting.shortcut_column,\
-            setting.shortcut_count_per_page,\
+            setting.shortcut_rows_per_page,\
             setting.gallery_column,\
             setting.classification_gallery_column,\
             setting.usergallery_images_column,\
             setting.usergallery_images_page_limit,\
             setting.shortcut_max_download_image_per_version,\
             setting.gallery_thumbnail_image_style,\
+            "Up" if setting.shortcut_browser_search_up else "Down",\
             setting.model_folders['LoCon'],\
             setting.model_folders['Wildcards'],\
             setting.model_folders['Controlnet'],\

@@ -69,7 +69,8 @@ def on_ui(recipe_input):
         
         usergal_page_url = gr.Textbox(value=None)
         
-        # refresh_information = gr.Textbox()
+        refresh_information = gr.Textbox()
+        
         refresh_gallery = gr.Textbox()
         
         # 미리 다음페이지를 로딩한다.
@@ -130,7 +131,23 @@ def on_ui(recipe_input):
         ],
         cancels=gallery         
     )   
-            
+
+    refresh_information.change(
+        fn=on_usergal_page_url_change,
+        inputs=[
+            usergal_page_url,
+            paging_information
+        ],
+        outputs=[               
+            refresh_gallery,
+            usergal_images_url,
+            usergal_images_meta,
+            page_slider,
+            img_file_info,            
+        ],
+        cancels=gallery  
+    )
+                
     # civitai user gallery information start
     selected_model_id.change(
         fn=on_selected_model_id_change,
@@ -227,7 +244,7 @@ def on_ui(recipe_input):
         ]        
     )
     
-    return selected_model_id
+    return selected_model_id , refresh_information
 
 def on_send_to_recipe_click(img_file_info, img_index, usergal_images):
     try:
@@ -324,7 +341,10 @@ def on_selected_model_id_change(modelid):
     if modelid:
         page_url = get_default_page_url(modelid,None,False)
         title_name, versions_list, version_name, paging_information = get_model_information(page_url)
-        total_page = paging_information["totalPages"]  
+        if paging_information:
+            total_page = paging_information["totalPages"]
+        else:
+            total_page = 0    
     
     return  gr.update(label=title_name),page_url,gr.update(choices=[setting.PLACEHOLDER] + versions_list if versions_list else None, value=version_name if version_name else setting.PLACEHOLDER), \
         gr.update(minimum=1, maximum=total_page, value=1, step=1, label=f"Total {total_page} Pages"), paging_information
@@ -353,7 +373,10 @@ def on_versions_list_select(evt: gr.SelectData, modelid=None):
             page_url = get_default_page_url(modelid,None,False)
                          
         title_name, versions_list, version_name, paging_information = get_model_information(page_url)
-        total_page = paging_information["totalPages"]
+        if paging_information:
+            total_page = paging_information["totalPages"]
+        else:
+            total_page = 0
         
     return  gr.update(label=title_name),page_url,gr.update(choices=[setting.PLACEHOLDER] + versions_list if versions_list else None, value=version_name if version_name else setting.PLACEHOLDER), \
         gr.update(minimum=1, maximum=total_page, value=1, step=1, label=f"Total {total_page} Pages"), paging_information
@@ -503,6 +526,14 @@ def get_user_gallery(modelid, page_url, show_nsfw):
                 img_url = image_info['url']
                 
                 gallery_img_file = setting.get_image_url_to_gallery_file(image_info['url'])
+                
+                # NSFW filtering ....
+                if setting.NSFW_filtering_enable:
+                    # if not setting.NSFW_level[image_info["nsfwLevel"]]:
+                    if setting.NSFW_levels.index(image_info["nsfwLevel"]) > setting.NSFW_levels.index(setting.NSFW_level_user):                    
+                        gallery_img_file = setting.nsfw_disable_image
+                        meta_string = ""
+                                    
                 if os.path.isfile(gallery_img_file):
                     img_url = gallery_img_file
                                      
