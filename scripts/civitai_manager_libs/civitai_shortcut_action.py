@@ -14,7 +14,9 @@ from . import ishortcut_action
 from . import civitai_gallery_action
 
 def on_shortcut_input_change(shortcut_input):
-    return shortcut_input, gr.update(selected="Shortcut")
+    if not shortcut_input:
+        return None, gr.update(visible=False), gr.update(selected="Shortcut")
+    return None, shortcut_input, gr.update(selected="Shortcut")
         
 def on_ui(recipe_input, shortcut_input, civitai_tabs):    
     with gr.Row(visible=False):       
@@ -114,16 +116,39 @@ def on_ui(recipe_input, shortcut_input, civitai_tabs):
             shortcut_input
         ],
         outputs=[
+            shortcut_input,
             sc_modelid,
             civitai_tabs,
         ], show_progress=False
     )
     
     scan_new_version_btn.click(on_scan_new_version_btn,shortcut_new_version_type,sc_new_version_gallery)                
-    sc_gallery.select(on_sc_gallery_select, None, [sc_modelid], show_progress=False)    
-    sc_new_version_gallery.select(on_sc_gallery_select, None, [sc_modelid], show_progress=False)
+    # sc_gallery.select(on_sc_gallery_select, None, [sc_modelid], show_progress=False)    
+    # sc_new_version_gallery.select(on_sc_gallery_select, None, [sc_modelid], show_progress=False)
     update_modelfolder_btn.click(on_update_modelfolder_btn_click,None,refresh_sc_browser)
     civitai_shortcut_tabs.select(on_civitai_shortcut_tabs_select,None,[refresh_sc_browser,refresh_NSFW],show_progress=False)
+
+    sc_gallery.select(
+        fn=on_sc_gallery_select,
+        inputs=None,
+        outputs=[
+            sc_modelid,
+            sc_gallery,
+            refresh_sc_gallery
+        ],
+        show_progress=False
+    )   
+        
+    sc_new_version_gallery.select(
+        fn=on_sc_gallery_select, 
+        inputs=None, 
+        outputs=[
+            sc_modelid,
+            sc_gallery,
+            refresh_sc_gallery
+        ], 
+        show_progress=False
+    )
     
     update_informations.change(
         fn=on_sc_modelid_change,
@@ -217,14 +242,25 @@ def on_civitai_information_tabs_select(evt: gr.SelectData):
     return evt.index, current_time
 
 ##### sc_gallery 함수 정의 #####
+# def on_sc_gallery_select(evt : gr.SelectData):
+#     if evt.value:
+#         shortcut = evt.value 
+#         sc_model_id = setting.get_modelid_from_shortcutname(shortcut) #shortcut[0:shortcut.find(':')]      
+        
+#         # 최신버전이 있으면 업데이트한다. 백그라운드에서 수행되므로 다음에 번에 반영된다.
+#         # update_shortcut_thread(sc_model_id)
+#     return sc_model_id
+
 def on_sc_gallery_select(evt : gr.SelectData):
+    sc_reload = setting.classification_preview_mode_disable
     if evt.value:
         shortcut = evt.value 
         sc_model_id = setting.get_modelid_from_shortcutname(shortcut) #shortcut[0:shortcut.find(':')]      
         
         # 최신버전이 있으면 업데이트한다. 백그라운드에서 수행되므로 다음에 번에 반영된다.
         # update_shortcut_thread(sc_model_id)
-    return sc_model_id
+    current_time = datetime.datetime.now()
+    return sc_model_id, None if sc_reload else gr.update(show_label=False), current_time if sc_reload else gr.update(visible=False)
 
 def on_sc_modelid_change(sc_model_id, current_information_tabs):
    
