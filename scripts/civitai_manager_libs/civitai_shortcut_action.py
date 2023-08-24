@@ -48,7 +48,7 @@ def on_ui(recipe_input, shortcut_input, civitai_tabs):
                     with gr.Column():
                         shortcut_new_version_type = gr.Dropdown(label='Filter Model type', multiselect=True, choices=[k for k in setting.ui_typenames], interactive=True)                                     
                         scan_new_version_btn = gr.Button(value="Scan new version model", variant="primary")
-                        sc_new_version_gallery = gr.Gallery(label="SC New Version Gallery", elem_id="sc_new_version_gallery", show_label=False).style(grid=[setting.shortcut_column], height="fit", object_fit=setting.gallery_thumbnail_image_style)
+                        sc_new_version_gallery = gr.Gallery(label="SC New Version Gallery", elem_id="sc_new_version_gallery", show_label=False, grid=[setting.shortcut_column], height="fit", object_fit=setting.gallery_thumbnail_image_style)
                         gr.Markdown(value="The feature is to search for new versions of models on Civitai among the downloaded ones.", visible=True)
             with gr.TabItem("NSFW Filter"):
                 with gr.Row():

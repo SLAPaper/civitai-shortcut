@@ -35,7 +35,7 @@ def on_ui(shortcut_input):
                         with gr.TabItem("Classification Shortcuts", id="Classification_Shortcuts"):                            
                             classification_gallery_page = gr.Slider(minimum=1, maximum=1, value=1, step=1, label=f"Total {1} Pages", interactive=True, visible=True if setting.classification_gallery_rows_per_page > 0 else False)
                             classification_shortcut_delete = gr.Checkbox(label="Delete from classification when selecting a thumbnail.", value=False)
-                            classification_gallery = gr.Gallery(elem_id="classification_gallery", show_label=False).style(grid=[setting.classification_gallery_column], height="auto", object_fit=setting.gallery_thumbnail_image_style, preview=False)                                                
+                            classification_gallery = gr.Gallery(elem_id="classification_gallery", show_label=False, grid=[setting.classification_gallery_column], height="auto", object_fit=setting.gallery_thumbnail_image_style, preview=False)                                                
                             with gr.Row():
                                 classification_clear_shortcut_btn = gr.Button(value="Clear")
                                 classification_reload_shortcut_btn = gr.Button(value="Reload")
