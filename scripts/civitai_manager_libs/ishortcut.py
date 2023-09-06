@@ -353,7 +353,7 @@ def write_model_information(modelid:str, register_only_information=False, progre
                                 dn_count = dn_count + 1
                                 continue
                                 
-                            with requests.get(url, stream=True) as img_r:
+                            with requests.get(url, stream=True, verify=False, proxies=setting.proxies) as img_r:
                                 if not img_r.ok:
                                     util.printD("Get error code: " + str(img_r.status_code) + ": proceed to the next file")
                                     continue
@@ -383,7 +383,7 @@ def write_model_information(modelid:str, register_only_information=False, progre
                                 dn_count = dn_count + 1
                                 continue
                             
-                            with requests.get(url, stream=True) as img_r:
+                            with requests.get(url, stream=True, verify=False, proxies=setting.proxies) as img_r:
                                 if not img_r.ok:
                                     util.printD("Get error code: " + str(img_r.status_code) + ": proceed to the next file")
                                     continue
@@ -623,7 +623,7 @@ def download_thumbnail_image_old(model_id, url):
     
     try:
         # get image
-        with requests.get(url, stream=True) as img_r:
+        with requests.get(url, stream=True, verify=False, proxies=setting.proxies) as img_r:
             if not img_r.ok:
                 return False
             
@@ -648,7 +648,7 @@ def download_thumbnail_image(model_id, url):
     
     try:
         # Get image
-        with requests.get(url, stream=True) as img_r:
+        with requests.get(url, stream=True, verify=False, proxies=setting.proxies) as img_r:
             if not img_r.ok:
                 return False
 
