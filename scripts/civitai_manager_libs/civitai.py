@@ -357,7 +357,12 @@ def get_images_by_modelid(model_id: str,
         if 'items' not in content:
             return []
 
-        return content['items']
+        res_list = []
+        for img_dict in content['items']:
+            img_dict['nsfw'] = img_dict.get('nsfwLevel', 'None')
+            res_list.append(img_dict)
+
+        return res_list
 
     except Exception as e:
         print(

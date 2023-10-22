@@ -457,10 +457,13 @@ def write_model_information(modelid:str, register_only_information=False, progre
     if model_info:
         version_list = list()
         if "modelVersions" in model_info.keys():
-            for version_info in model_info["modelVersions"]:
+            for version_idx, version_info in enumerate(model_info["modelVersions"]):
                 version_id = version_info['id']
                 img_list = civitai.get_images_by_modelid(modelid, version_id)
                 if img_list:
+                    # replace the image list with full version
+                    model_info["modelVersions"][version_idx]["images"] = img_list
+
                     image_list = list()
                     for img in img_list:                                                
                         if "url" in img:
