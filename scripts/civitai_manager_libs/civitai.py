@@ -329,3 +329,41 @@ def write_LoRa_metadata(filepath, version_info):
         return False
 
     return True   
+
+
+def get_images_by_modelid(model_id: str,
+                          model_versionid: str | None = None) -> list[dict]:
+    """"use images api to get all the images from civitai (model api will limit to first 10)
+    TODO: support paging logic
+    """
+    params = {
+        'modelId': model_id,
+    }
+
+    if model_versionid:
+        params['modelVersionId'] = model_versionid
+
+    if setting.shortcut_max_download_image_per_version > 0:
+        params["limit"] = setting.shortcut_max_download_image_per_version
+
+    try:
+        content = {}
+        with requests.get(Url_ImagePage(),
+                          params=params,
+                          verify=False,
+                          proxies=setting.proxies) as response:
+            content = response.json()
+
+        if 'items' not in content:
+            return []
+
+        return content['items']
+
+    except Exception as e:
+        print(
+            "Civitai Shortcut getting model images failed",
+            f"({model_id}:{model_versionid})",
+            f"({e.__traceback__.tb_frame.f_code.co_filename}:{e.__traceback__.tb_lineno})",
+            repr(e))
+
+    return []

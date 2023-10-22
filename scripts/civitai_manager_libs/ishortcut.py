@@ -459,9 +459,10 @@ def write_model_information(modelid:str, register_only_information=False, progre
         if "modelVersions" in model_info.keys():
             for version_info in model_info["modelVersions"]:
                 version_id = version_info['id']
-                if "images" in version_info.keys():
+                img_list = civitai.get_images_by_modelid(modelid, version_id)
+                if img_list:
                     image_list = list()
-                    for img in version_info["images"]:                                                
+                    for img in img_list:                                                
                         if "url" in img:
                             img_url = img["url"]
                             # use max width
