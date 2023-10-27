@@ -455,11 +455,12 @@ def write_model_information(modelid:str, register_only_information=False, progre
         return     
     model_info = civitai.get_model_info(modelid)
     if model_info:
+        username = model_info["creator"]["username"]
         version_list = list()
         if "modelVersions" in model_info.keys():
             for version_idx, version_info in enumerate(model_info["modelVersions"]):
                 version_id = version_info['id']
-                img_list = civitai.get_images_by_modelid(modelid, version_id)
+                img_list = civitai.get_images_by_modelid(modelid, version_id, username)
                 if img_list:
                     # replace the image list with full version
                     model_info["modelVersions"][version_idx]["images"] = img_list

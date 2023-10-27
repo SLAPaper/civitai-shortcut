@@ -332,7 +332,8 @@ def write_LoRa_metadata(filepath, version_info):
 
 
 def get_images_by_modelid(model_id: str,
-                          model_versionid: str | None = None) -> list[dict]:
+                          model_versionid: str | None = None,
+                          username: str | None = None) -> list[dict]:
     """"use images api to get all the images from civitai (model api will limit to first 10)
     TODO: support paging logic
     """
@@ -342,6 +343,9 @@ def get_images_by_modelid(model_id: str,
 
     if model_versionid:
         params['modelVersionId'] = model_versionid
+
+    if username:
+        params["username"] = username
 
     if setting.shortcut_max_download_image_per_version > 0:
         params["limit"] = setting.shortcut_max_download_image_per_version
