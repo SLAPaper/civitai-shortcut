@@ -185,22 +185,25 @@ def create_models_information(files, mfolder, vs_folder, register_shortcut, prog
             if "images" in version_info.keys():
                 description_img = os.path.join(model_folder, f"{basename}{setting.preview_image_suffix}{setting.preview_image_ext}")
                 try:            
-                    img_dict = version_info["images"][0] 
-                    if "url" in img_dict:
-                        img_url = img_dict["url"]
-                        if "width" in img_dict:
-                            if img_dict["width"]:
-                                img_url =  util.change_width_from_image_url(img_url, img_dict["width"])
-                        # get image
-                        with requests.get(img_url, stream=True, verify=False, proxies=setting.proxies) as img_r:
-                            if not img_r.ok:
-                                util.printD("Get error code: " + str(img_r.status_code))
-                                return
+                    for img_dict in version_info["images"]:
+                        if setting.NSFW_filtering_enable:
+                            if setting.NSFW_levels.index(img_dict["nsfw"]) > setting.NSFW_levels.index(setting.NSFW_level_user):                    
+                                continue
+                        if "url" in img_dict:
+                            img_url = img_dict["url"]
+                            if "width" in img_dict:
+                                if img_dict["width"]:
+                                    img_url =  util.change_width_from_image_url(img_url, img_dict["width"])
+                            # get image
+                            with requests.get(img_url, stream=True, verify=False, proxies=setting.proxies) as img_r:
+                                if not img_r.ok:
+                                    util.printD("Get error code: " + str(img_r.status_code))
+                                    return
 
-                            with open(description_img, 'wb') as f:
-                                img_r.raw.decode_content = True
-                                shutil.copyfileobj(img_r.raw, f)
-                                util.printD(f"Downloaded preview image : {description_img}")                                
+                                with open(description_img, 'wb') as f:
+                                    img_r.raw.decode_content = True
+                                    shutil.copyfileobj(img_r.raw, f)
+                                    util.printD(f"Downloaded preview image : {description_img}")                                
                 except Exception as e:
                     pass
                 
