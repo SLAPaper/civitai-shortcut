@@ -204,6 +204,7 @@ def create_models_information(files, mfolder, vs_folder, register_shortcut, prog
                                     img_r.raw.decode_content = True
                                     shutil.copyfileobj(img_r.raw, f)
                                     util.printD(f"Downloaded preview image : {description_img}")                                
+                                    break
                 except Exception as e:
                     pass
                 
