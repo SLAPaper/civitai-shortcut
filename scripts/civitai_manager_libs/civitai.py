@@ -79,7 +79,7 @@ def get_version_info_by_hash(hash) -> dict:
     content = None
     
     try:
-        with requests.get(f"{Url_Hash()}{hash}", verify=False, proxies=setting.proxies) as response:
+        with requests.get(f"{Url_Hash()}{hash[:12]}", verify=False, proxies=setting.proxies) as response:
             content = response.json()
             
         if 'id' not in content.keys():
