@@ -1,9 +1,10 @@
-import os
-import re
 import json
+import os
+import typing as tg
+
 import requests
-from . import util
-from . import setting 
+
+from . import setting, util
 
 # Set the URL for the API endpoint
 
@@ -37,76 +38,76 @@ def request_models(api_url=None):
             # Check the status code of the response
             if response.status_code != 200:
                 util.printD("Request failed with status code: {}".format(response.status_code))
-                return         
+                return
             data = json.loads(response.text)
     except Exception as e:
         return
     return data
 
-def get_model_info(id:str) -> dict:    
+def get_model_info(id:str) -> dict:
     if not id:
         return
-    
+
     content = None
-    try:            
+    try:
         with requests.get(Url_ModelId()+str(id), verify=False, proxies=setting.proxies) as response:
             content = response.json()
 
         if 'id' not in content.keys():
             return None
-        
+
     except Exception as e:
         return None
 
     return content
 
-def get_model_info_by_version_id(version_id:str) -> dict:        
+def get_model_info_by_version_id(version_id:str) -> dict:
     if not version_id:
         return
-    
-    version_info = get_version_info_by_version_id(version_id) 
+
+    version_info = get_version_info_by_version_id(version_id)
     return get_model_info_by_version_info(version_info)
 
-def get_model_info_by_version_info(version_info) -> dict:    
+def get_model_info_by_version_info(version_info) -> dict:
     if not version_info:
-        return 
+        return
     return get_model_info(version_info['modelId'])
-  
-def get_version_info_by_hash(hash) -> dict:        
-    if not hash:                
-        return 
-    
+
+def get_version_info_by_hash(hash) -> dict:
+    if not hash:
+        return
+
     content = None
-    
+
     try:
         with requests.get(f"{Url_Hash()}{hash}", verify=False, proxies=setting.proxies) as response:
             content = response.json()
-            
+
         if 'id' not in content.keys():
             return None
-        
+
     except Exception as e:
         return None
 
-    return content  
-  
-def get_version_info_by_version_id(version_id:str) -> dict:        
-    if not version_id:                
-        return 
-    
+    return content
+
+def get_version_info_by_version_id(version_id:str) -> dict:
+    if not version_id:
+        return
+
     content = None
-    
+
     try:
         with requests.get(Url_VersionId()+str(version_id), verify=False, proxies=setting.proxies) as response:
             content = response.json()
 
         if 'id' not in content.keys():
             return None
-        
+
     except Exception as e:
         return None
-    
-    return content   
+
+    return content
 
 def get_latest_version_info_by_model_id(id:str) -> dict:
 
@@ -116,14 +117,14 @@ def get_latest_version_info_by_model_id(id:str) -> dict:
 
     if "modelVersions" not in model_info.keys():
         return
-            
+
     def_version = model_info["modelVersions"][0]
     if not def_version:
         return
-    
+
     if "id" not in def_version.keys():
         return
-    
+
     version_id = def_version["id"]
 
     # 모델에서 얻는 버전 인포는 모델 정보가 없으므로 새로 받아오자
@@ -134,111 +135,111 @@ def get_latest_version_info_by_model_id(id:str) -> dict:
 def get_version_id_by_version_name(model_id:str,name:str)->str:
     version_id = None
     if not model_id:
-        return 
-    
+        return
+
     model_info = get_model_info(model_id)
     if not model_info:
         return
-    
+
     if "modelVersions" not in model_info.keys():
         return
-            
+
     version_id = None
-    
+
     for version in model_info['modelVersions']:
         if version['name'] == name:
             version_id = version['id']
             break
-        
+
     return version_id
 
 def get_files_by_version_info(version_info:dict)->dict:
     download_files = {}
-    
-    if not version_info:                
-        return         
-    
+
+    if not version_info:
+        return
+
     for file in version_info['files']:
         download_files[str(file['id'])] = file
-    
+
     return download_files
 
-def get_files_by_version_id(version_id=None)->dict:   
-    if not version_id:                
-        return         
-    
-    version_info = get_version_info_by_version_id(version_id)          
-    
+def get_files_by_version_id(version_id=None)->dict:
+    if not version_id:
+        return
+
+    version_info = get_version_info_by_version_id(version_id)
+
     return get_files_by_version_info(version_info)
 
 def get_primary_file_by_version_info(version_info:dict)->dict:
-   
+
     if not version_info:
         return
-    
+
     for file in version_info['files']:
         if 'primary' in file.keys():
             if file['primary']:
-                return file        
+                return file
     return
-        
-def get_primary_file_by_version_id(version_id=None)->dict:   
-    if not version_id:                
-        return         
-    
-    version_info = get_version_info_by_version_id(version_id)          
-    
+
+def get_primary_file_by_version_id(version_id=None)->dict:
+    if not version_id:
+        return
+
+    version_info = get_version_info_by_version_id(version_id)
+
     return get_primary_file_by_version_info(version_info)
 
-def get_images_by_version_id(version_id=None)->dict:   
-    if not version_id:                
-        return         
-    
-    version_info = get_version_info_by_version_id(version_id)          
-    
+def get_images_by_version_id(version_id=None)->dict:
+    if not version_id:
+        return
+
+    version_info = get_version_info_by_version_id(version_id)
+
     return get_images_by_version_info(version_info)
 
-                
-def get_images_by_version_info(version_info:dict)->dict:   
-    if not version_info:                
-        return         
-    
+
+def get_images_by_version_info(version_info:dict)->dict:
+    if not version_info:
+        return
+
     return version_info["images"]
 
 
-def get_triger_by_version_info(version_info:dict)->str:   
-    if not version_info:                
-        return         
+def get_triger_by_version_info(version_info:dict)->str:
+    if not version_info:
+        return
     try:
-        triger_words = ", ".join(version_info['trainedWords'])    
+        triger_words = ", ".join(version_info['trainedWords'])
         if len(triger_words.strip()) > 0:
             return triger_words
     except:
         pass
-    
+
     return
 
-def get_triger_by_version_id(version_id=None)->str:   
-    if not version_id:                
-        return         
-    
-    version_info = get_version_info_by_version_id(version_id)          
-    
+def get_triger_by_version_id(version_id=None)->str:
+    if not version_id:
+        return
+
+    version_info = get_version_info_by_version_id(version_id)
+
     return get_triger_by_version_info(version_info)
 
-def write_model_info(file, model_info:dict)->str:   
+def write_model_info(file, model_info:dict)->str:
     if not model_info:
         return False
-           
+
     try:
         with open(file, 'w') as f:
             f.write(json.dumps(model_info, indent=4))
     except Exception as e:
             return False
-    
+
     return True
 
-def write_version_info(file, version_info:dict):   
+def write_version_info(file, version_info:dict):
     if not version_info:
         return False
 
@@ -246,24 +247,24 @@ def write_version_info(file, version_info:dict):
         with open(file, 'w') as f:
             f.write(json.dumps(version_info, indent=4))
     except Exception as e:
-            return False              
-    
+            return False
+
     return True
 
 def write_triger_words_by_version_id(file, version_id:str):
-    if not version_id: 
+    if not version_id:
         return False
-        
+
     version_info = get_version_info_by_version_id(version_id)
-    
+
     return write_triger_words(file,version_info)
-    
-def write_triger_words(file, version_info:dict):   
+
+def write_triger_words(file, version_info:dict):
     if not version_info:
         return False
-    
+
     triger_words = get_triger_by_version_info(version_info)
-        
+
     if not triger_words:
         return False
 
@@ -272,15 +273,15 @@ def write_triger_words(file, version_info:dict):
             f.write(triger_words)
     except Exception as e:
         return False
-        
+
     return True
 
 def write_LoRa_metadata_by_version_id(file, version_id:str):
-    if not version_id: 
+    if not version_id:
         return False
-        
+
     version_info = get_version_info_by_version_id(version_id)
-    
+
     return write_LoRa_metadata(file,version_info)
 
 def write_LoRa_metadata(filepath, version_info):
@@ -292,35 +293,35 @@ def write_LoRa_metadata(filepath, version_info):
 	    "preferred weight": 0,
 	    "notes": None
     }
-    
+
     if not version_info:
         return False
-    
-    if os.path.isfile(filepath):        
+
+    if os.path.isfile(filepath):
         return False
-    
+
     if "description" in version_info.keys():
         LoRa_metadata['description'] = version_info["description"]
 
     if "baseModel" in version_info.keys():
         baseModel = version_info["baseModel"]
-        if baseModel in setting.model_basemodels.keys():            
+        if baseModel in setting.model_basemodels.keys():
             LoRa_metadata['sd version'] = setting.model_basemodels[baseModel]
         else:
             LoRa_metadata['sd version'] = 'Unknown'
-        
-    if "trainedWords" in version_info.keys():    
-        LoRa_metadata['activation text'] = ", ".join(version_info['trainedWords']) 
-    
+
+    if "trainedWords" in version_info.keys():
+        LoRa_metadata['activation text'] = ", ".join(version_info['trainedWords'])
+
     notes = list()
-    if "modelId" in version_info.keys():                
+    if "modelId" in version_info.keys():
         notes.append(f"{url_dict['modelPage']}{version_info['modelId']}")
-    
+
     if "downloadUrl" in version_info.keys():
         notes.append(version_info['downloadUrl'])
 
-    if len(notes) > 0:    
-        LoRa_metadata['notes'] = ", ".join(notes) 
+    if len(notes) > 0:
+        LoRa_metadata['notes'] = ", ".join(notes)
 
     try:
         with open(filepath, 'w') as f:
@@ -328,7 +329,7 @@ def write_LoRa_metadata(filepath, version_info):
     except Exception as e:
         return False
 
-    return True   
+    return True
 
 
 def get_images_by_modelid(model_id: str,
@@ -337,7 +338,7 @@ def get_images_by_modelid(model_id: str,
     """"use images api to get all the images from civitai (model api will limit to first 10)
     TODO: support paging logic
     """
-    params = {
+    params: dict[str, tg.Any] = {
         'modelId': model_id,
     }
 
@@ -369,10 +370,17 @@ def get_images_by_modelid(model_id: str,
         return res_list
 
     except Exception as e:
+        if e.__traceback__ is not None:
+            file_name = e.__traceback__.tb_frame.f_code.co_filename
+            line_number = e.__traceback__.tb_lineno
+        else:
+            file_name = "Unknown"
+            line_number = 0
+
         print(
             "Civitai Shortcut getting model images failed",
             f"({model_id}:{model_versionid})",
-            f"({e.__traceback__.tb_frame.f_code.co_filename}:{e.__traceback__.tb_lineno})",
+            f"({file_name}:{line_number})",
             repr(e))
 
     return []
