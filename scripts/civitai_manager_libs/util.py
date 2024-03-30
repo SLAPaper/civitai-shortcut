@@ -329,3 +329,28 @@ def search_file(root_dirs:list,base:list,exts:list)->list:
                         file_list.append(os.path.join(root,file_name))                        
                     
     return file_list if len(file_list) > 0 else None
+
+
+def is_nsfw_filtered(nsfwLevel: str | int) -> bool:
+    """Handle different nsfwLevel formats"""
+    if not setting.NSFW_filtering_enable:
+        return False
+
+    if not nsfwLevel:
+        # empty or 0
+        return False
+
+    if isinstance(nsfwLevel, str):
+        # old nsfwLevel format: None, Soft, Mature, X
+        if 2 ** setting.NSFW_levels.index(
+            setting.NSFW_level_user
+        ) < setting.NSFW_levels.index(nsfwLevel):
+            return True
+    elif isinstance(nsfwLevel, int):
+        # new nsfwLevel format: 1, 2, 4, 8
+        if 2 ** setting.NSFW_levels.index(setting.NSFW_level_user) < nsfwLevel:
+            return True
+    else:
+        logging.warning(f"Unsupported nsfwLevel format: {repr(nsfwLevel)}")
+
+    return False
