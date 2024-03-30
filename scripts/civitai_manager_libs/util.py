@@ -333,6 +333,8 @@ def search_file(root_dirs:list,base:list,exts:list)->list:
 
 def is_nsfw_filtered(nsfwLevel: str | int) -> bool:
     """Handle different nsfwLevel formats"""
+    import logging
+
     if not setting.NSFW_filtering_enable:
         return False
 

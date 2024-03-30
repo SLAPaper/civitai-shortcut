@@ -537,26 +537,25 @@ def get_user_gallery(modelid, page_url, show_nsfw):
 
     if image_data:
         for image_info in image_data:       
-                
+            if not isinstance(image_info, dict):
+                continue
             if "url" in image_info:                
                 img_url = image_info['url']
                 
                 gallery_img_file = setting.get_image_url_to_gallery_file(image_info['url'])
                 
                 # NSFW filtering ....
-                if setting.NSFW_filtering_enable:
-                    
-                    # if not setting.NSFW_level[image_info["nsfwLevel"]]:
-                    if setting.NSFW_levels.index(image_info["nsfwLevel"]) > setting.NSFW_levels.index(setting.NSFW_level_user):                    
-                        gallery_img_file = setting.nsfw_disable_image
-                        meta_string = ""
-                                    
+                if util.is_nsfw_filtered(image_info.get("nsfwLevel", 0)):
+                    gallery_img_file = setting.nsfw_disable_image
+                    meta_string = ""
+                if not isinstance(gallery_img_file, str):
+                    gallery_img_file = setting.nsfw_disable_image
                 if os.path.isfile(gallery_img_file):
                     img_url = gallery_img_file
                                      
                 images_url.append(img_url)
                 
-        images_list = {image_info['id']:image_info for image_info in image_data}
+        images_list = {image_info['id']:image_info for image_info in image_data if isinstance(image_info, dict)}
         
     return images_url, images_list
            

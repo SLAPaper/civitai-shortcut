@@ -87,21 +87,10 @@ def get_version_description_gallery(modelid, version_info):
             
             # NSFW filtering ....
             if setting.NSFW_filtering_enable:
-                # if not setting.NSFW_level[ver["nsfw"]]:
-                
-                img_nsfw_level = 1
-                
-                if "nsfw" in img_dict.keys():
-                    img_nsfw_level = setting.NSFW_levels.index(img_dict["nsfw"])
-                
-                if "nsfwLevel" in img_dict.keys():
-                    img_nsfw_level = img_dict["nsfwLevel"] - 1
-                    if img_nsfw_level < 0:
-                        img_nsfw_level = 0
-                                            
-                if img_nsfw_level > setting.NSFW_levels.index(setting.NSFW_level_user):
+                if util.is_nsfw_filtered(img_dict.get("nsfw", 0)) or util.is_nsfw_filtered(img_dict.get("nsfwLevel", 0)):
                     description_img = setting.nsfw_disable_image
-                    
+            if not isinstance(description_img, str):
+                description_img = setting.no_card_preview_image
             if os.path.isfile(description_img):               
                 images_url.append(description_img)
     except Exception as e:
@@ -565,8 +554,6 @@ def update_thumbnail_images(progress):
     if not preISC:
         return
 
-    # nsfw_levels = setting.NSFW_levels #[nsfw_level for nsfw_level in setting.NSFW_level.keys()]
-
     for k, v in progress.tqdm(preISC.items(),desc="Update Shortcut's Thumbnails"):
         if v:
             # 사이트에서 최신 정보를 가져온다.
@@ -582,27 +569,15 @@ def update_thumbnail_images(progress):
             #     download_thumbnail_image(v['id'], v['imageurl'])
 
             # nsfw 검색해서 최대한 건전한 이미지를 골라낸다.
-            if len(version_info["images"]) > 0:
-                cur_nsfw_level = len(setting.NSFW_levels)
-                def_image = None
-                for img_dict in version_info["images"]:
-                    
-                    img_nsfw_level = 1
-                    
-                    if "nsfw" in img_dict.keys():
-                        img_nsfw_level = setting.NSFW_levels.index(img_dict["nsfw"])
-                    
-                    if "nsfwLevel" in img_dict.keys():
-                        img_nsfw_level = img_dict["nsfwLevel"] - 1
-                        if img_nsfw_level < 0:
-                            img_nsfw_level = 0
-                                            
-                    if img_nsfw_level < cur_nsfw_level:
-                        cur_nsfw_level = img_nsfw_level
-                        def_image = img_dict["url"]
+            for img_dict in version_info["images"]:
+                if util.is_nsfw_filtered(img_dict.get("nsfw", 0)) or util.is_nsfw_filtered(img_dict.get("nsfwLevel", 0)):
+                    continue
 
-                if not def_image:
-                    def_image = version_info["images"][0]["url"]
+                def_image = img_dict["url"]
+                break
+
+            if len(version_info["images"]) > 0 and not def_image:
+                def_image = version_info["images"][0]["url"]
 
                 v['imageurl'] = def_image
                 download_thumbnail_image(v['id'], v['imageurl'])
@@ -862,28 +837,15 @@ def add(ISC:dict, model_id, register_information_only=False, progress=None)->dic
                 #     def_image = def_version["images"][0]["url"]
 
                 # nsfw 검색해서 최대한 건전한 이미지를 골라낸다.
-                if len(def_version["images"]) > 0:
-                    # nsfw_levels = [nsfw_level for nsfw_level in setting.NSFW_level.keys()]
-                    cur_nsfw_level = len(setting.NSFW_levels)
-                    def_image = None
-                    for img_dict in def_version["images"]:
-                        
-                        img_nsfw_level = 1
-                        
-                        if "nsfw" in img_dict.keys():
-                            img_nsfw_level = setting.NSFW_levels.index(img_dict["nsfw"])
-                        
-                        if "nsfwLevel" in img_dict.keys():
-                            img_nsfw_level = img_dict["nsfwLevel"] - 1
-                            if img_nsfw_level < 0:
-                                img_nsfw_level = 0
-                                                
-                        if img_nsfw_level < cur_nsfw_level:
-                            cur_nsfw_level = img_nsfw_level
-                            def_image = img_dict["url"]
+                for img_dict in def_version["images"]:
+                    if util.is_nsfw_filtered(img_dict.get("nsfw", 0)) or util.is_nsfw_filtered(img_dict.get("nsfwLevel", 0)):
+                        continue
 
-                    if not def_image:
-                        def_image = def_version["images"][0]["url"]
+                    def_image = img_dict["url"]
+                    break
+
+                if len(def_version["images"]) > 0 and not def_image:
+                    def_image = def_version["images"][0]["url"]
 
             # 현재 모델의 모델 파일 정보를 추출한다.
             # for ver in model_info["modelVersions"]:

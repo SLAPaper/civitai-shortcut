@@ -186,9 +186,8 @@ def create_models_information(files, mfolder, vs_folder, register_shortcut, prog
                 description_img = os.path.join(model_folder, f"{basename}{setting.preview_image_suffix}{setting.preview_image_ext}")
                 try:            
                     for img_dict in version_info["images"]:
-                        if setting.NSFW_filtering_enable:
-                            if setting.NSFW_levels.index(img_dict["nsfw"]) > setting.NSFW_levels.index(setting.NSFW_level_user):                    
-                                continue
+                        if util.is_nsfw_filtered(img_dict.get("nsfw", 0)) or util.is_nsfw_filtered(img_dict.get("nsfwLevel", 0)):
+                            continue
                         if "url" in img_dict:
                             img_url = img_dict["url"]
                             if "width" in img_dict:
