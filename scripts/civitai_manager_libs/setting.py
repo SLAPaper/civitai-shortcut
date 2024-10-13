@@ -24,7 +24,7 @@ NEWCLASSIFICATION = "[New Classification]"
 CREATE_MODEL_FOLDER = "Create a model folder to download the model"
 # CREATE_MODEL_FOLDER = "Create a model folder with the model name"
 
-model_exts = (".bin", ".pt", ".safetensors", ".ckpt")
+model_exts = (".bin", ".pt", ".safetensors", ".ckpt", ".gguf")
 
 # sd_version = ['SD1', 'SD2', 'SDXL', 'Unknown']
 model_basemodels = {
