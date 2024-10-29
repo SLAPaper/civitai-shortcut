@@ -283,6 +283,18 @@ def load_data():
     if shared.cmd_opts.lora_dir:
         model_folders['LORA'] = shared.cmd_opts.lora_dir
 
+    if shared.cmd_opts.vae_dir:
+        model_folders['VAE'] = shared.cmd_opts.vae_dir
+
+    if hasattr(shared.cmd_opts, "controlnet_dir") and shared.cmd_opts.controlnet_dir:
+        model_folders['Controlnet'] = shared.cmd_opts.controlnet_dir
+
+    if hasattr(shared.cmd_opts, "unet_dir") and shared.cmd_opts.unet_dir:
+        model_folders['Unet'] = shared.cmd_opts.unet_dir
+
+    if hasattr(shared.cmd_opts, "clip_dir") and shared.cmd_opts.clip_dir:
+        model_folders['CLIP'] = shared.cmd_opts.clip_dir
+
     environment = load()
     if environment:
         if "NSFW_filter" in  environment.keys():
