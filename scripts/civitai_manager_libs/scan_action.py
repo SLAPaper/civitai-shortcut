@@ -184,28 +184,40 @@ def create_models_information(files, mfolder, vs_folder, register_shortcut, prog
             # save preview            
             if "images" in version_info.keys():
                 description_img = os.path.join(model_folder, f"{basename}{setting.preview_image_suffix}{setting.preview_image_ext}")
-                try:            
-                    for img_dict in version_info["images"]:
-                        if util.is_nsfw_filtered(img_dict.get("nsfw", 0)) or util.is_nsfw_filtered(img_dict.get("nsfwLevel", 0)):
+                for img_dict in version_info["images"]:
+                    try:            
+                        # skip no url
+                        if "url" not in img_dict:
+                            util.printD(f"Skipped 1 preview image by no url")
                             continue
-                        if "url" in img_dict:
-                            img_url = img_dict["url"]
-                            if "width" in img_dict:
-                                if img_dict["width"]:
-                                    img_url =  util.change_width_from_image_url(img_url, img_dict["width"])
-                            # get image
-                            with requests.get(img_url, stream=True, verify=False, proxies=setting.proxies) as img_r:
-                                if not img_r.ok:
-                                    util.printD("Get error code: " + str(img_r.status_code))
-                                    return
 
-                                with open(description_img, 'wb') as f:
-                                    img_r.raw.decode_content = True
-                                    shutil.copyfileobj(img_r.raw, f)
-                                    util.printD(f"Downloaded preview image : {description_img}")                                
-                                    break
-                except Exception as e:
-                    pass
+                        # skip nsfw
+                        if util.is_nsfw_filtered(img_dict.get("nsfw", 0)) or util.is_nsfw_filtered(img_dict.get("nsfwLevel", 0)):
+                            util.printD(f"Skipped 1 preview image by nsfw : {img_dict.get('url')}")
+                            continue
+
+                        # skip video
+                        if img_dict.get("type") == "video":
+                            util.printD(f"Skipped 1 preview image by type: {img_dict.get('url')}")
+                            continue
+                        
+                        img_url = img_dict["url"]
+                        if "width" in img_dict:
+                            if img_dict["width"]:
+                                img_url =  util.change_width_from_image_url(img_url, img_dict["width"])
+                        # get image
+                        with requests.get(img_url, stream=True, verify=False, proxies=setting.proxies) as img_r:
+                            if not img_r.ok:
+                                util.printD("Get error code: " + str(img_r.status_code))
+                                return
+
+                            with open(description_img, 'wb') as f:
+                                img_r.raw.decode_content = True
+                                shutil.copyfileobj(img_r.raw, f)
+                                util.printD(f"Downloaded preview image : {description_img}")                                
+                                break
+                    except Exception as e:
+                        util.printD(f"skipped 1 preview image by exception : {e}")
                 
             # 파일 이동
             if mfolder:
