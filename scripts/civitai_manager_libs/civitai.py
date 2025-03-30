@@ -34,7 +34,9 @@ def Url_ImagePage():
 def request_models(api_url=None):
     try:
         # Make a GET request to the API
-        with requests.get(api_url, verify=False, proxies=setting.proxies) as response:
+        with requests.get(
+            api_url, verify=False, proxies=setting.proxies, timeout=10
+        ) as response:
             # Check the status code of the response
             if response.status_code != 200:
                 util.printD("Request failed with status code: {}".format(response.status_code))
@@ -50,7 +52,12 @@ def get_model_info(id:str) -> dict:
 
     content = None
     try:
-        with requests.get(Url_ModelId()+str(id), verify=False, proxies=setting.proxies) as response:
+        with requests.get(
+            Url_ModelId() + str(id),
+            verify=False,
+            proxies=setting.proxies,
+            timeout=setting.requests_timeout,
+        ) as response:
             content = response.json()
 
         if 'id' not in content.keys():
@@ -61,26 +68,31 @@ def get_model_info(id:str) -> dict:
 
     return content
 
-# def get_model_info_by_version_id(version_id:str) -> dict:        
+# def get_model_info_by_version_id(version_id:str) -> dict:
 #     if not version_id:
 #         return
-    
-#     version_info = get_version_info_by_version_id(version_id) 
+
+#     version_info = get_version_info_by_version_id(version_id)
 #     return get_model_info_by_version_info(version_info)
 
-# def get_model_info_by_version_info(version_info) -> dict:    
+# def get_model_info_by_version_info(version_info) -> dict:
 #     if not version_info:
-#         return 
+#         return
 #     return get_model_info(version_info['modelId'])
-  
+
 def get_version_info_by_hash(hash) -> dict:        
     if not hash:                
         return 
-    
+
     content = None
 
     try:
-        with requests.get(f"{Url_Hash()}{hash}", verify=False, proxies=setting.proxies) as response:
+        with requests.get(
+            f"{Url_Hash()}{hash}",
+            verify=False,
+            proxies=setting.proxies,
+            timeout=setting.requests_timeout,
+        ) as response:
             content = response.json()
 
         if 'id' not in content.keys():
@@ -98,7 +110,12 @@ def get_version_info_by_version_id(version_id:str) -> dict:
     content = None
 
     try:
-        with requests.get(Url_VersionId()+str(version_id), verify=False, proxies=setting.proxies) as response:
+        with requests.get(
+            Url_VersionId() + str(version_id),
+            verify=False,
+            proxies=setting.proxies,
+            timeout=setting.requests_timeout,
+        ) as response:
             content = response.json()
 
         if 'id' not in content.keys():
@@ -356,7 +373,8 @@ def get_images_by_modelid(model_id: str,
         with requests.get(Url_ImagePage(),
                           params=params,
                           verify=False,
-                          proxies=setting.proxies) as response:
+                          proxies=setting.proxies,
+                          timeout=setting.requests_timeout) as response:
             content = response.json()
 
         if 'items' not in content:

@@ -109,6 +109,8 @@ try:
 except ImportError:
     proxies = None
 
+requests_timeout = 10
+
 #information tab
 civitai_information_tab = 0
 usergal_information_tab = 1
