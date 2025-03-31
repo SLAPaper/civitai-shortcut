@@ -1,5 +1,7 @@
 import os
 import json
+import pathlib
+import sys
 import shutil
 
 from modules import scripts, script_callbacks, shared
@@ -103,15 +105,19 @@ ui_typenames = {
 }
 
 # copy proxy_config.py.template to proxy_config.py to add proxy config
-try:
-    from .proxy_config import _PROXIES
-    proxies = _PROXIES
-except ImportError:
-    proxies = None
+proxy_config_path = pathlib.Path(__file__).parent / "proxy_config.json"
+proxies: dict[str, str] | None = None
+if proxy_config_path.exists():
+    with open(proxy_config_path, encoding='utf-8') as fp:
+        proxies = json.load(fp)
 
 requests_timeout = 10
+print(
+    f"Civitai shortcut init proxy settings: {proxies=}, {requests_timeout=}",
+    file=sys.stderr,
+)
 
-#information tab
+# information tab
 civitai_information_tab = 0
 usergal_information_tab = 1
 download_information_tab = 2

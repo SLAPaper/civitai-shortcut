@@ -1,5 +1,6 @@
 import json
 import os
+import sys
 import typing as tg
 
 import requests
@@ -35,7 +36,7 @@ def request_models(api_url=None):
     try:
         # Make a GET request to the API
         with requests.get(
-            api_url, verify=False, proxies=setting.proxies, timeout=10
+            api_url, proxies=setting.proxies, timeout=10
         ) as response:
             # Check the status code of the response
             if response.status_code != 200:
@@ -54,7 +55,6 @@ def get_model_info(id:str) -> dict:
     try:
         with requests.get(
             Url_ModelId() + str(id),
-            verify=False,
             proxies=setting.proxies,
             timeout=setting.requests_timeout,
         ) as response:
@@ -89,7 +89,6 @@ def get_version_info_by_hash(hash) -> dict:
     try:
         with requests.get(
             f"{Url_Hash()}{hash}",
-            verify=False,
             proxies=setting.proxies,
             timeout=setting.requests_timeout,
         ) as response:
@@ -112,7 +111,6 @@ def get_version_info_by_version_id(version_id:str) -> dict:
     try:
         with requests.get(
             Url_VersionId() + str(version_id),
-            verify=False,
             proxies=setting.proxies,
             timeout=setting.requests_timeout,
         ) as response:
@@ -353,10 +351,10 @@ def get_images_by_modelid(model_id: str,
                           model_versionid: str | None = None,
                           username: str | None = None) -> list[dict]:
     """"use images api to get all the images from civitai (model api will limit to first 10)
-    TODO: support paging logic
     """
     params: dict[str, tg.Any] = {
         'modelId': model_id,
+        'page': 0,
     }
 
     if model_versionid:
@@ -365,27 +363,43 @@ def get_images_by_modelid(model_id: str,
     if username:
         params["username"] = username
 
-    if setting.shortcut_max_download_image_per_version > 0:
-        params["limit"] = setting.shortcut_max_download_image_per_version
+    # if setting.shortcut_max_download_image_per_version > 0:
+    #     params["limit"] = setting.shortcut_max_download_image_per_version
 
+    page_url = ''
+    result: list[dict] = []
     try:
         content = {}
+        # print(f"Civitai Debug log: url={Url_ImagePage()}, {params=}, proxies={setting.proxies}, timeout={setting.requests_timeout}", file=sys.stderr)
         with requests.get(Url_ImagePage(),
                           params=params,
-                          verify=False,
                           proxies=setting.proxies,
                           timeout=setting.requests_timeout) as response:
             content = response.json()
 
         if 'items' not in content:
-            return []
+            return result
 
-        res_list = []
         for img_dict in content['items']:
             img_dict['nsfw'] = img_dict.get('nsfwLevel', 'None')
-            res_list.append(img_dict)
+            result.append(img_dict)
 
-        return res_list
+        if 'metadata' in content:
+            page_url = content['metadata'].get('nextPage', '')
+
+        while page_url:
+            # print(f"Civitai Debug log: {page_url=}, proxies={setting.proxies}, timeout={setting.requests_timeout}", file=sys.stderr)
+            with requests.get(page_url, proxies=setting.proxies, timeout=setting.requests_timeout) as response:
+                content = response.json()
+
+            if 'items' not in content:
+                break
+
+            for img_dict in content['items']:
+                img_dict['nsfw'] = img_dict.get('nsfwLevel', 'None')
+                result.append(img_dict)
+
+        return result
 
     except Exception as e:
         if e.__traceback__ is not None:
@@ -401,4 +415,4 @@ def get_images_by_modelid(model_id: str,
             f"({file_name}:{line_number})",
             repr(e))
 
-    return []
+    return result
