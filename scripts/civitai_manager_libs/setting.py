@@ -117,7 +117,7 @@ print(
     file=sys.stderr,
 )
 
-# information tab
+#information tab
 civitai_information_tab = 0
 usergal_information_tab = 1
 download_information_tab = 2
@@ -195,7 +195,19 @@ nsfw_disable_image = os.path.join(extension_base,"img","nsfw-no-preview.png")
 
 NSFW_filtering_enable = True
 # NSFW_level = { "None":True, "Soft":False, "Mature":False, "X":False } # None, Soft, Mature, X
-NSFW_levels = ("None","Soft","Mature","X","XX") # None, Soft, Mature, X
+NSFW_levels = ("PG","PG-13","R","X","XXX") # None, Soft, Mature, X
+NSFW_level_mapping: dict[str, int] = {
+    "None": 0,
+    "PG": 0,
+    "Soft": 1,
+    "PG-13": 1,
+    "Mature": 2,
+    "R": 2,
+    "X": 3,
+    "XX": 4,
+    "XXX": 4,
+}  # map nsfw levels to nsfwLevels
+
 NSFW_level_user = "None"
 
 shortcut_env = dict()

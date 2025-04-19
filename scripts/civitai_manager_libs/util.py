@@ -31,7 +31,7 @@ def calculate_sha256(filname):
         printD("sha256: " + hash_value)
         printD("length: " + str(length))
         return hash_value
-    
+
 def is_url_or_filepath(input_string):
     if not input_string:
         return "unknown"
@@ -42,7 +42,7 @@ def is_url_or_filepath(input_string):
         return "url"
     else:
         return "unknown"
-    
+
 def convert_civitai_meta_to_stable_meta(meta:dict):
     meta_string = ""
     different_key=['prompt', 'negativePrompt','steps','sampler','cfgScale','seed','resources','hashes']
@@ -106,7 +106,7 @@ def add_number_to_duplicate_files(filenames)->dict:
     #     return result
             
     return filenames
-    
+
 def open_folder(path):
     if os.path.exists(path):
         # Code from ui_common.py
@@ -119,7 +119,7 @@ def open_folder(path):
                 subprocess.Popen(["wsl-open", path])
             else:
                 subprocess.Popen(["xdg-open", path])
-                
+
 def get_search_keyword(search:str):
     tags = []
     keys = []
@@ -257,7 +257,7 @@ def replace_dirname(dir_name):
     if dir_name and len(dir_name.strip()) > 0:
         return dir_name.replace("*", "-").replace("?", "-").replace("\"", "-").replace("|", "-").replace(":", "-").replace("/", "-").replace("\\", "-").replace("<", "-").replace(">", "-")
     return None
-    
+
 def write_InternetShortcut(path, url):
     try:
         with open(path, 'w', newline='\r\n') as f:        
@@ -265,7 +265,7 @@ def write_InternetShortcut(path, url):
     except:
         return False    
     return True
-    
+
 def load_InternetShortcut(path)->str:
     urls = list()
     try:    
@@ -343,16 +343,35 @@ def is_nsfw_filtered(nsfwLevel: str | int) -> bool:
         return False
 
     if isinstance(nsfwLevel, str):
-        # old nsfwLevel format: None, Soft, Mature, X
-        if 2 ** setting.NSFW_levels.index(
-            setting.NSFW_level_user
-        ) < setting.NSFW_levels.index(nsfwLevel):
+        # old nsfwLevel format: PG, PG-13, R, X, XXX
+        if (
+            setting.NSFW_level_mapping[setting.NSFW_level_user]
+            < setting.NSFW_level_mapping[nsfwLevel]
+        ):
             return True
     elif isinstance(nsfwLevel, int):
         # new nsfwLevel format: 1, 2, 4, 8
-        if 2 ** setting.NSFW_levels.index(setting.NSFW_level_user) < nsfwLevel:
+        if 2 ** setting.NSFW_level_mapping[setting.NSFW_level_user] < nsfwLevel:
             return True
     else:
         logging.warning(f"Unsupported nsfwLevel format: {repr(nsfwLevel)}")
 
     return False
+
+
+import itertools as it
+def merge_image_list(*img_lists: list[dict]) -> list[dict]:
+    img_list = []
+    image_hash_set: set[str] = set()
+    for img_dict in it.chain.from_iterable(img_lists):
+        if not img_dict:
+            continue
+
+        if 'hash' in img_dict and img_dict['hash'] in image_hash_set:
+            continue
+
+        if 'hash' in img_dict:
+            image_hash_set.add(img_dict['hash'])
+
+        img_list.append(img_dict)
+    return img_list

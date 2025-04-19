@@ -1,11 +1,9 @@
-import json
 import os
-import sys
-import typing as tg
-
+import re
+import json
 import requests
-
-from . import setting, util
+from . import util
+from . import setting
 
 # Set the URL for the API endpoint
 
@@ -36,7 +34,7 @@ def request_models(api_url=None):
     try:
         # Make a GET request to the API
         with requests.get(
-            api_url, proxies=setting.proxies, timeout=10
+            api_url, proxies=setting.proxies, timeout=setting.requests_timeout
         ) as response:
             # Check the status code of the response
             if response.status_code != 200:
@@ -352,7 +350,7 @@ def get_images_by_modelid(model_id: str,
                           username: str | None = None) -> list[dict]:
     """"use images api to get all the images from civitai (model api will limit to first 10)
     """
-    params: dict[str, tg.Any] = {
+    params: dict = {
         'modelId': model_id,
         'page': 0,
     }

@@ -87,10 +87,10 @@ def get_version_description_gallery(modelid, version_info):
             
             # NSFW filtering ....
             if setting.NSFW_filtering_enable:
-                if util.is_nsfw_filtered(img_dict.get("nsfw", 0)) or util.is_nsfw_filtered(img_dict.get("nsfwLevel", 0)):
+                if util.is_nsfw_filtered(img_dict.get("nsfwLevel", 0)):
+                    util.printD(f"Skipped 1 preview image by nsfw : {img_dict.get('url')}")
                     description_img = setting.nsfw_disable_image
-            if not isinstance(description_img, str):
-                description_img = setting.no_card_preview_image
+
             if os.path.isfile(description_img):               
                 images_url.append(description_img)
     except Exception as e:
@@ -138,6 +138,10 @@ def get_version_description(version_info:dict,model_info:dict=None):
             output_training = ", ".join(version_info['trainedWords'])
             html_trainingpart = f'<br><b>Training Tags:</b> {output_training}'
 
+        model_uploader = model_info['creator']['username']
+        html_creatorpart = f"<br><b>Uploaded by:</b> {model_uploader}"
+
+
         html_descpart = f"<br><b>Version : {version_info['name']}</b><br> BaseModel : {version_info['baseModel']}<br>"
 
         if 'description' in version_info:
@@ -162,7 +166,7 @@ def get_version_description(version_info:dict,model_info:dict=None):
                 files.append(file)
                 html_dnurlpart = html_dnurlpart + f"<br><a href={file['downloadUrl']}><b>Download << Here</b></a>"
 
-        output_html = html_typepart + html_modelpart + html_versionpart + html_trainingpart + "<br>" +  html_model_tags + "<br>" +  html_modelurlpart + html_dnurlpart + "<br>" + html_descpart + "<br>" + html_imgpart
+        output_html = html_typepart + html_modelpart + html_versionpart + html_creatorpart + html_trainingpart + "<br>" +  html_model_tags + "<br>" +  html_modelurlpart + html_dnurlpart + "<br>" + html_descpart + "<br>" + html_imgpart
 
         return output_html, output_training, files
 
@@ -441,13 +445,18 @@ def write_model_information(modelid:str, register_only_information=False, progre
         if "modelVersions" in model_info.keys():
             for version_idx, version_info in enumerate(model_info["modelVersions"]):
                 version_id = version_info['id']
-                img_list = civitai.get_images_by_modelid(modelid, version_id)
-                if img_list:
-                    # replace the image list with full version
-                    model_info["modelVersions"][version_idx]["images"] = img_list
+                img_list_from_model_info = []
+                if "images" in version_info.keys():
+                    img_list_from_model_info = version_info["images"]
 
+                # neither images lists from model info or image api is complete, so merge the two
+                img_list_from_image_api = civitai.get_images_by_modelid(modelid, version_id)
+
+                if img_list_from_model_info or img_list_from_image_api:
+                    # replace the image list with full version
+                    model_info["modelVersions"][version_idx]["images"] = util.merge_image_list(img_list_from_model_info, img_list_from_image_api)
                     image_list = list()
-                    for img in img_list:
+                    for img in model_info["modelVersions"][version_idx]["images"]:
                         if "url" in img:
                             img_url = img["url"]
                             # use max width
@@ -554,6 +563,8 @@ def update_thumbnail_images(progress):
     if not preISC:
         return
 
+    # nsfw_levels = setting.NSFW_levels #[nsfw_level for nsfw_level in setting.NSFW_level.keys()]
+
     for k, v in progress.tqdm(preISC.items(),desc="Update Shortcut's Thumbnails"):
         if v:
             # 사이트에서 최신 정보를 가져온다.
@@ -569,14 +580,18 @@ def update_thumbnail_images(progress):
             #     download_thumbnail_image(v['id'], v['imageurl'])
 
             # nsfw 검색해서 최대한 건전한 이미지를 골라낸다.
-            for img_dict in version_info["images"]:
-                if util.is_nsfw_filtered(img_dict.get("nsfw", 0)) or util.is_nsfw_filtered(img_dict.get("nsfwLevel", 0)):
-                    continue
+            if len(version_info["images"]) > 0:
+                cur_nsfw_level = len(setting.NSFW_levels)
+                def_image = None
+                for img_dict in version_info["images"]:
+                    if util.is_nsfw_filtered(img_dict.get("nsfwLevel", 0)):
+                        util.printD(f"Skipped 1 preview image by nsfw : {img_dict.get('url')}")
+                        continue
 
-                def_image = img_dict["url"]
-                break
+                    def_image = img_dict["url"]
+                    break
 
-            if len(version_info["images"]) > 0 and not def_image:
+            if not def_image:
                 def_image = version_info["images"][0]["url"]
 
                 v['imageurl'] = def_image
@@ -837,14 +852,20 @@ def add(ISC:dict, model_id, register_information_only=False, progress=None)->dic
                 #     def_image = def_version["images"][0]["url"]
 
                 # nsfw 검색해서 최대한 건전한 이미지를 골라낸다.
-                for img_dict in def_version["images"]:
-                    if util.is_nsfw_filtered(img_dict.get("nsfw", 0)) or util.is_nsfw_filtered(img_dict.get("nsfwLevel", 0)):
-                        continue
+                if len(def_version["images"]) > 0:
+                    # nsfw_levels = [nsfw_level for nsfw_level in setting.NSFW_level.keys()]
+                    cur_nsfw_level = len(setting.NSFW_levels)
+                    def_image = None
+                    for img_dict in def_version["images"]:
 
-                    def_image = img_dict["url"]
-                    break
+                        if util.is_nsfw_filtered(img_dict.get("nsfwLevel", 0)):
+                            util.printD(f"Skipped 1 preview image by nsfw : {img_dict.get('url')}")
+                            continue
 
-                if len(def_version["images"]) > 0 and not def_image:
+                        def_image = img_dict["url"]
+                        break
+
+                if not def_image:
                     def_image = def_version["images"][0]["url"]
 
             # 현재 모델의 모델 파일 정보를 추출한다.

@@ -192,7 +192,7 @@ def create_models_information(files, mfolder, vs_folder, register_shortcut, prog
                             continue
 
                         # skip nsfw
-                        if util.is_nsfw_filtered(img_dict.get("nsfw", 0)) or util.is_nsfw_filtered(img_dict.get("nsfwLevel", 0)):
+                        if util.is_nsfw_filtered(img_dict.get("nsfwLevel", 0)):
                             util.printD(f"Skipped 1 preview image by nsfw : {img_dict.get('url')}")
                             continue
 
