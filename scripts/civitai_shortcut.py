@@ -79,7 +79,7 @@ def civitai_shortcut_ui():
     )
          
 def update_all_shortcut_informations():
-    preISC = ishortcut.load()                           
+    preISC = ishortcut.load(force_reload=True)                           
     if not preISC:
         return
    
@@ -100,6 +100,7 @@ def update_all_shortcut_informations_thread():
 def init_civitai_shortcut():
     setting.init()
     model.update_downloaded_model()
+    ishortcut.load(force_reload=True)
 
     util.printD(setting.Extensions_Version)
 

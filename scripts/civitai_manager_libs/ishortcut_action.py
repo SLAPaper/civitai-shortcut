@@ -897,7 +897,7 @@ def upload_shortcut_by_files(files, register_information_only, progress):
             if model_id:                    
                 add_ISC = ishortcut.add(add_ISC, model_id, register_information_only, progress)
                       
-        ISC = ishortcut.load()
+        ISC = ishortcut.load(force_reload=True)
         if ISC:
             ISC.update(add_ISC)
         else:
@@ -917,7 +917,7 @@ def upload_shortcut_by_urls(urls, register_information_only, progress):
                     add_ISC = ishortcut.add(add_ISC, model_id, register_information_only, progress)
                     modelids.append(model_id)
                       
-        ISC = ishortcut.load()
+        ISC = ishortcut.load(force_reload=True)
         if ISC:
             ISC.update(add_ISC)
         else:

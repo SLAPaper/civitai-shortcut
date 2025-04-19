@@ -16,6 +16,8 @@ from PIL import Image
 
 thumbnail_max_size = (400, 400)
 
+MODEL_INFO_CACHE = {}
+
 def get_model_information(modelid:str=None, versionid:str=None, ver_index:int=None):
     # 현재 모델의 정보를 가져온다.
     model_info = None
@@ -954,6 +956,7 @@ def backup_cis(name, url):
         pass
 
 def save(ISC:dict):
+    global MODEL_INFO_CACHE
     #print("Saving Civitai Internet Shortcut to: " + setting.shortcut)
 
     output = ""
@@ -966,13 +969,23 @@ def save(ISC:dict):
         util.printD("Error when writing file:"+setting.shortcut)
         return output
 
+    MODEL_INFO_CACHE = ISC
     output = "Civitai Internet Shortcut saved to: " + setting.shortcut
     #util.printD(output)
 
     return output
 
-def load()->dict:
+import inspect
+def load(force_reload: bool = False)->dict:
+    global MODEL_INFO_CACHE
     #util.printD("Load Civitai Internet Shortcut from: " + setting.shortcut)
+
+    if not force_reload:
+        return MODEL_INFO_CACHE
+
+    stack = inspect.stack()
+    frame = stack[1]
+    util.printD(f"Force reloading civitai shortcuts, calling from: {frame.filename}:{frame.lineno} → {frame.function}")
 
     if not os.path.isfile(setting.shortcut):
         util.printD("Unable to load the shortcut file. Starting with an empty file.")
@@ -992,4 +1005,5 @@ def load()->dict:
         return None
 
     # check for new key
+    MODEL_INFO_CACHE = json_data
     return json_data
