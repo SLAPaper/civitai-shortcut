@@ -459,6 +459,9 @@ def write_model_information(modelid:str, register_only_information=False, progre
                     model_info["modelVersions"][version_idx]["images"] = util.merge_image_list(img_list_from_model_info, img_list_from_image_api)
                     image_list = list()
                     for img in model_info["modelVersions"][version_idx]["images"]:
+                        if util.is_nsfw_filtered(img.get("nsfwLevel", 0)):
+                            util.printD(f"Skipped 1 preview image by nsfw : {img.get('url')}")
+                            continue
                         if "url" in img:
                             img_url = img["url"]
                             # use max width
