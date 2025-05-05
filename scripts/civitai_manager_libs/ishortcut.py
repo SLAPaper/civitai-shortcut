@@ -93,6 +93,11 @@ def get_version_description_gallery(modelid, version_info):
                     util.printD(f"Skipped 1 preview image by nsfw : {img_dict.get('url')}")
                     description_img = setting.nsfw_disable_image
 
+            # skip video
+            if img_dict.get("type") == "video":
+                util.printD(f"Skipped 1 preview image by type: {img_dict.get('url')}")
+                continue
+
             if os.path.isfile(description_img):               
                 images_url.append(description_img)
     except Exception as e:
@@ -459,9 +464,16 @@ def write_model_information(modelid:str, register_only_information=False, progre
                     model_info["modelVersions"][version_idx]["images"] = util.merge_image_list(img_list_from_model_info, img_list_from_image_api)
                     image_list = list()
                     for img in model_info["modelVersions"][version_idx]["images"]:
+
                         if util.is_nsfw_filtered(img.get("nsfwLevel", 0)):
                             util.printD(f"Skipped 1 preview image by nsfw : {img.get('url')}")
                             continue
+
+                        # skip video
+                        if img.get("type") == "video":
+                            util.printD(f"Skipped 1 preview image by type: {img.get('url')}")
+                            continue
+
                         if "url" in img:
                             img_url = img["url"]
                             # use max width
@@ -591,6 +603,11 @@ def update_thumbnail_images(progress):
                 for img_dict in version_info["images"]:
                     if util.is_nsfw_filtered(img_dict.get("nsfwLevel", 0)):
                         util.printD(f"Skipped 1 preview image by nsfw : {img_dict.get('url')}")
+                        continue
+
+                    # skip video
+                    if img_dict.get("type") == "video":
+                        util.printD(f"Skipped 1 preview image by type: {img_dict.get('url')}")
                         continue
 
                     def_image = img_dict["url"]
@@ -865,6 +882,11 @@ def add(ISC:dict, model_id, register_information_only=False, progress=None)->dic
 
                         if util.is_nsfw_filtered(img_dict.get("nsfwLevel", 0)):
                             util.printD(f"Skipped 1 preview image by nsfw : {img_dict.get('url')}")
+                            continue
+
+                        # skip video
+                        if img_dict.get("type") == "video":
+                            util.printD(f"Skipped 1 preview image by type: {img_dict.get('url')}")
                             continue
 
                         def_image = img_dict["url"]

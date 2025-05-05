@@ -549,6 +549,11 @@ def get_user_gallery(modelid, page_url, show_nsfw):
                     gallery_img_file = setting.nsfw_disable_image
                     meta_string = ""
 
+                # skip video
+                if image_info.get("type") == "video":
+                    util.printD(f"Skipped 1 preview image by type: {image_info.get('url')}")
+                    continue
+
                 if os.path.isfile(gallery_img_file):
                     img_url = gallery_img_file
                                      
