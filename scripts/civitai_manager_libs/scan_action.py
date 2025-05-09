@@ -155,6 +155,7 @@ def create_models_information(files, mfolder, vs_folder, register_shortcut, prog
             
             if not version_info:
                 # These models are not registered with Civitai.
+                util.printD(f"No Civitai info: {file_path}")
                 non_list.append(file_path)
                 continue
             

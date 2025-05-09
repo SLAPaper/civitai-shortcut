@@ -80,6 +80,7 @@ def get_model_info(id:str) -> dict:
 
 def get_version_info_by_hash(hash) -> dict:        
     if not hash:                
+        util.printD(f"Get version info from Civitai failed: no hash")
         return 
 
     content = None
@@ -93,9 +94,11 @@ def get_version_info_by_hash(hash) -> dict:
             content = response.json()
 
         if 'id' not in content.keys():
+            util.printD(f"Get version info from Civitai failed: no id")
             return None
 
     except Exception as e:
+        util.printD(f"Get version info from Civitai failed: {e}")
         return None
 
     return content
