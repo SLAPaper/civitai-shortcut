@@ -2,6 +2,18 @@ import io
 import re
 import os
 import json
+import time
+from contextlib import contextmanager
+
+@contextmanager
+def timer(name: str):
+    start = time.perf_counter()
+    try:
+        yield
+    finally:
+        end = time.perf_counter()
+        duration = end - start
+        printD(f'{name} Elapsed time: {duration:.4f} seconds')
 
 import hashlib
 import platform

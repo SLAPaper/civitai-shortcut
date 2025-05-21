@@ -47,26 +47,31 @@ def civitai_shortcut_ui():
             
         with gr.TabItem("Model Browser" , id="Shortcut"):
             with gr.Row():
-                refresh_civitai_sc_browser, refresh_civitai_information = civitai_shortcut_action.on_ui(recipe_input, shortcut_input, civitai_tabs)
+                with util.timer("Civitai Shortcut Browser"):
+                    refresh_civitai_sc_browser, refresh_civitai_information = civitai_shortcut_action.on_ui(recipe_input, shortcut_input, civitai_tabs)
 
         with gr.TabItem("Prompt Recipe" , id="Recipe"):
             with gr.Row():
-                refresh_recipe = recipe_action.on_ui(recipe_input, shortcut_input, civitai_tabs)
+                with util.timer("Civitai Shortcut Recipe"):
+                    refresh_recipe = recipe_action.on_ui(recipe_input, shortcut_input, civitai_tabs)
 
         with gr.TabItem("Assistance" , id="Assistance"):
             with gr.Tabs() as civitai_assistance_tabs:
                 with gr.TabItem("Classification"):
                     with gr.Row():
-                        refresh_classification = classification_action.on_ui(shortcut_input)
+                        with util.timer("Civitai Shortcut Classification"):
+                            refresh_classification = classification_action.on_ui(shortcut_input)
                 with gr.TabItem("Scan and Update Models"):
                     with gr.Row():
-                        scan_action.on_scan_ui()
+                        with util.timer("Civitai Shortcut Scan"):
+                            scan_action.on_scan_ui()
 
         with gr.TabItem("Manage" , id="Manage"):
             with gr.Tabs() as civitai_manage_tabs:
                 with gr.TabItem("Setting"):
                     with gr.Row():
-                        refresh_setting = setting_action.on_setting_ui()
+                        with util.timer("Civitai Shortcut Setting"):
+                            refresh_setting = setting_action.on_setting_ui()
                 # with gr.TabItem("ReadMe"):
                 #     with gr.Row():
                 #         gr.Markdown(value=readmarkdown())
@@ -109,10 +114,12 @@ def init_civitai_shortcut():
 
 def on_ui_tabs():
     # init
-    init_civitai_shortcut()
+    with util.timer("Civitai Shortcut init"):
+        init_civitai_shortcut()
 
-    with gr.Blocks() as civitai_shortcut:
-        civitai_shortcut_ui()
+    with util.timer("Civitai Shortcut UI"):
+        with gr.Blocks() as civitai_shortcut:
+            civitai_shortcut_ui()
         
     return (civitai_shortcut, "Civitai Shortcut", "civitai_shortcut"),
 

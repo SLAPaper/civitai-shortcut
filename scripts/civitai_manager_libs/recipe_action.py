@@ -30,7 +30,8 @@ def on_ui(recipe_input, shortcut_input, civitai_tabs):
         with gr.Tabs():
             with gr.TabItem("Prompt Recipe List"):
                 recipe_new_btn = gr.Button(value="New Recipe", variant="primary")
-                recipe_gallery, refresh_recipe_browser = recipe_browser_page.on_ui()
+                with util.timer("Civitai Shortcut Recipe Browser"):
+                    recipe_gallery, refresh_recipe_browser = recipe_browser_page.on_ui()
             with gr.TabItem("Generate Prompt From Image"):
                 recipe_drop_image = gr.Image(type="pil", label="Drop image", height='100%')
 
@@ -55,7 +56,8 @@ def on_ui(recipe_input, shortcut_input, civitai_tabs):
                                     pass                         
                             recipe_classification = gr.Dropdown(label="Prompt Recipe Classification", choices=[setting.PLACEHOLDER] + recipe.get_classifications(), value=setting.PLACEHOLDER, info="You can choose from a list or enter manually. If you enter a classification that didn't exist before, a new classification will be created." ,interactive=True, allow_custom_value=True)
                         with gr.TabItem("Additional Shortcut Models for Reference"):                    
-                            reference_sc_gallery, refresh_reference_sc_browser, refresh_reference_sc_gallery = sc_browser_page.on_ui(False,"DOWN",setting.prompt_reference_shortcut_column,setting.prompt_reference_shortcut_rows_per_page)
+                            with util.timer("Civitai Shortcut Reference Browser"):
+                                reference_sc_gallery, refresh_reference_sc_browser, refresh_reference_sc_gallery = sc_browser_page.on_ui(False,"DOWN",setting.prompt_reference_shortcut_column,setting.prompt_reference_shortcut_rows_per_page)
                     with gr.Row():
                         recipe_create_btn = gr.Button(value="Create", variant="primary")
                         recipe_update_btn = gr.Button(value="Update", variant="primary", visible=False)
