@@ -145,8 +145,12 @@ def get_version_description(version_info:dict,model_info:dict=None):
             output_training = ", ".join(version_info['trainedWords'])
             html_trainingpart = f'<br><b>Training Tags:</b> {output_training}'
 
-        model_uploader = model_info['creator']['username']
-        html_creatorpart = f"<br><b>Uploaded by:</b> {model_uploader}"
+        if "creator" in model_info and "username" in model_info['creator']:
+            model_uploader = model_info['creator']['username']
+            html_creatorpart = f"<br><b>Uploaded by:</b> {model_uploader}"
+        else:
+            model_uploader = "Unknown"
+            html_creatorpart = "<br><b>Uploaded by:</b> Unknown"
 
 
         html_descpart = f"<br><b>Version : {version_info['name']}</b><br> BaseModel : {version_info['baseModel']}<br>"
