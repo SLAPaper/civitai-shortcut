@@ -465,7 +465,7 @@ def get_image_url_to_shortcut_file(modelid, versionid, image_url):
         return description_img
     return None
 
-def get_image_url_to_gallery_file(image_url):
+def get_image_url_to_gallery_file(image_url: str) -> str | None:
     if image_url:
         image_id, ext = os.path.splitext(os.path.basename(image_url))
         description_img = os.path.join(shortcut_gallery_folder, f"{image_id}{preview_image_ext}")

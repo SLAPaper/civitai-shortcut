@@ -539,6 +539,9 @@ def get_user_gallery(modelid, page_url, show_nsfw):
         # util.printD("Gal:")
         # util.printD(len(image_data))   
         for image_info in image_data:       
+            if not image_info:
+                continue
+
             if "url" in image_info:                
                 img_url = image_info['url']
                 gallery_img_file = setting.get_image_url_to_gallery_file(img_url)
@@ -554,16 +557,16 @@ def get_user_gallery(modelid, page_url, show_nsfw):
                     util.printD(f"Skipped 1 preview image by type: {image_info.get('url')}")
                     continue
 
-                if os.path.isfile(gallery_img_file):
+                if gallery_img_file and os.path.isfile(gallery_img_file):
                     img_url = gallery_img_file
-                                     
+ 
                 images_url.append(img_url)
                 
         images_list = {image_info['id']:image_info for image_info in image_data}
         
     return images_url, images_list
-           
-def get_image_page(modelid, page_url, show_nsfw=False):
+ 
+def get_image_page(modelid, page_url, show_nsfw=False) -> list[dict] | None:
     json_data = {}
 
     if not page_url:
@@ -572,13 +575,12 @@ def get_image_page(modelid, page_url, show_nsfw=False):
     # util.printD(page_url)
     json_data = civitai.request_models(fix_page_url_cursor(page_url))
     # util.printD("here")
-    
-    try:
-        json_data['items']
-    except TypeError:
-        return None,None
-                        
-    return json_data['items']
+
+    if not json_data:
+        util.printD("No data found for the given modelId or page_url.")
+        return None
+
+    return json_data.get('items')
 
 def get_paging_information(modelId, modelVersionId = None, show_nsfw=False):
     totalPages = 0
