@@ -36,6 +36,7 @@ def on_ui(shortcut_input):
                             with gr.Row():
                                 with gr.Column(scale=4):
                                     classification_gallery_page = gr.Slider(minimum=1, maximum=1, value=1, step=1, label=f"Total {1} Pages", interactive=True, visible=True if setting.classification_gallery_rows_per_page > 0 else False)
+                                    setattr(classification_gallery_page, "do_not_save_to_config", True)
                                     with gr.Row():
                                         classification_prevPage_btn = gr.Button(value="Prev",scale=1)            
                                         classification_nextPage_btn = gr.Button(value="Next",scale=1)

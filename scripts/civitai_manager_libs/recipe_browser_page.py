@@ -16,6 +16,7 @@ def on_ui():
     reference_list, reference_totals, reference_max_page = get_recipe_reference_list(1)
         
     recipe_gallery_page = gr.Slider(minimum=1, maximum=thumb_max_page, value=1, step=1, label=f"Total {thumb_max_page} Pages", interactive=True, visible=True)
+    setattr(recipe_gallery_page, "do_not_save_to_config", True)
     with gr.Row():
         recipe_prevPage_btn = gr.Button(value="Prev",scale=1)            
         recipe_nextPage_btn = gr.Button(value="Next",scale=1)
@@ -29,6 +30,7 @@ def on_ui():
     with gr.Accordion(label="Filter Reference Shortcut Items", open=False):              
         recipe_reference_select_gallery = gr.Gallery(label="Filter Reference Models", columns=setting.prompt_shortcut_column, height="auto", object_fit=setting.gallery_thumbnail_image_style, preview=False, allow_preview=False)
         recipe_reference_gallery_page = gr.Slider(minimum=1, maximum=reference_max_page, value=1, step=1, label=f"Total {reference_max_page} Pages", interactive=True, visible=True)      
+        setattr(recipe_reference_gallery_page, "do_not_save_to_config", True)
         with gr.Row():
             recipe_reference_prevPage_btn = gr.Button(value="Prev",scale=1)            
             recipe_reference_nextPage_btn = gr.Button(value="Next",scale=1)

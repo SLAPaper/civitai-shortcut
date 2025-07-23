@@ -66,7 +66,9 @@ def on_ui(search_open=True,user_shortcut_browser_search_up=None,user_shortcut_co
             sc_classification_list = gr.Dropdown(label='Classification',info="The selection options of classification are subject to the AND operation.", multiselect=True, choices=classification.get_list(), interactive=True)
             shortcut_basemodel = gr.Dropdown(label='Filter Model BaseModel', multiselect=True, choices=[k for k in setting.model_basemodels.keys()], interactive=True)
             reset_filter_btn = gr.Button(value="Reset Filter",variant="primary")
-            
+
+    setattr(sc_gallery_page, "do_not_save_to_config", True)
+
     with gr.Row(visible=False):
         refresh_sc_browser = gr.Textbox()
         refresh_sc_gallery = gr.Textbox()
