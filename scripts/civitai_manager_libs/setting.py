@@ -386,6 +386,8 @@ def load_data():
         if "model_folders" in environment.keys():
 
             user_folders = environment['model_folders']
+            for key, value in user_folders.items():
+                model_folders[key] = value
 
             if 'LoCon' in user_folders.keys():
                 model_folders['LoCon'] = user_folders['LoCon']
