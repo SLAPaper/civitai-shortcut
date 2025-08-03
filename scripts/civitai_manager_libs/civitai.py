@@ -356,6 +356,7 @@ def get_images_by_modelid(model_id: str,
     params: dict = {
         'modelId': model_id,
         'page': 0,
+        'nsfw': util.get_user_nsfw_level_for_api(),
     }
 
     if model_versionid:

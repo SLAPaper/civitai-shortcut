@@ -371,6 +371,20 @@ def is_nsfw_filtered(nsfwLevel: str | int) -> bool:
     return False
 
 
+def get_user_nsfw_level_for_api() -> str:
+    """Handle different nsfwLevel formats for API"""
+    import logging
+
+    if not setting.NSFW_filtering_enable:
+        return "None"
+    
+    if setting.NSFW_level_user not in setting.NSFW_level_API_mapping:
+        logging.warning(f"Unsupported nsfwLevel user setting: {setting.NSFW_level_user}")
+        return "None"
+    
+    return setting.NSFW_level_API_mapping[setting.NSFW_level_user]
+
+
 import itertools as it
 def merge_image_list(*img_lists: list[dict]) -> list[dict]:
     img_list = []

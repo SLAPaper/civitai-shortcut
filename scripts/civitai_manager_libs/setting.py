@@ -111,13 +111,13 @@ if proxy_config_path.exists():
     with open(proxy_config_path, encoding='utf-8') as fp:
         proxies = json.load(fp)
 
-requests_timeout = 10
+requests_timeout = 2
 print(
     f"Civitai shortcut init proxy settings: {proxies=}, {requests_timeout=}",
     file=sys.stderr,
 )
 
-#information tab
+# information tab
 civitai_information_tab = 0
 usergal_information_tab = 1
 download_information_tab = 2
@@ -204,9 +204,16 @@ NSFW_level_mapping: dict[str, int] = {
     "Mature": 2,
     "R": 2,
     "X": 3,
-    "XX": 4,
     "XXX": 4,
 }  # map nsfw levels to nsfwLevels
+
+NSFW_level_API_mapping: dict[str, str] = {
+    "PG": "None",
+    "PG-13": "Soft",
+    "R": "Mature",
+    "X": "X",
+    "XXX": "X",
+}  # map nsfw levels to API levels
 
 NSFW_level_user = "None"
 
