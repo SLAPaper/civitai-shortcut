@@ -91,6 +91,7 @@ def get_infopaths( versionid ):
 # modelid를 키로 modelid가 같은 version_info의 File Path를 list로 묶어 반환한다.
 def get_model_path()->dict:
     root_dirs = list(set(setting.get_model_folders()))
+    print(f"[CIVITAI SHORTCUT] Model root dirs: {root_dirs}")
     file_list = util.search_file(root_dirs,None,[setting.info_ext])
     
     models = dict()
